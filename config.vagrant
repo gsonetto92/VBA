@@ -1,187 +1,154 @@
-Cacti DB
+# Cacti DB Server
 Vagrant.configure("2") do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
+  
+config.vm.box = "ubuntu/xenial64"
+config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+config.vm.network "public_network", ip: "192.168.0.231"
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "ubuntu/xenial64"
+config.vm.provider "virtualbox" do |vb|
+	vb.gui = true
+	vb.memory = "1024"
+end
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  # NOTE: This will enable public access to the opened port
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine and only allow access
-  # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
-
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
-
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-   config.vm.provision "shell", inline: <<-SHELL
-     apt-get update
-     
-############ Installieren von Cacti-Datenbank ############
-     dpkg-reconfigure tzdata
-
-### NTP Date Zeitzone Config ###   
-     apt-get update
-	   apt-get install ntpdate
-  	 ntpdate pool.ntp.br
-  	 timedatectl set-ntp 0
-  	 apt-get install ntp
-  	 date
-     
-
-### Installation des Datenbankdienstes ###
-     apt-get update
-     apt-get install mysql-server mysql-client
-     vi /etc/mysql/mysql.conf.d/mysqld.cnf
-     
-
-############# VARIABLEN FEHLEN ##############
-#############################################
-[mysqld]
-character-set-client-handshake = FALSE
-character-set-server = utf8mb4
-collation-server = utf8mb4_unicode_ci
-join_buffer_size = 31M
-innodb_buffer_pool_size = 240M
-innodb_doublewrite = OFF
-innodb_flush_log_at_timeout = 3
-innodb_read_io_threads = 32
-innodb_write_io_threads = 16
-innodb_buffer_pool_instances = 3
-#############################################
-
-
-     service mysql restart
-     mysql -u root -p
-     CREATE DATABASE cacti;
-     CREATE USER 'cactiuser'@'%' IDENTIFIED BY 'gsonetto';
-     GRANT ALL PRIVILEGES ON cacti.* TO 'cactiuser'@'%'; quit;
-     mkdir /downloads
-     cd /downloads
-     wget https://www.cacti.net/downloads/cacti-1.2.3.tar.gz
-
-### Cacti-Datenbankvorlage in MySQL importieren ###
-     tar -zxvf cacti-1.2.3.tar.gz
-     cd cacti-1.2.3
-     mysql -u cactiuser -p cacti < cacti.sql
-
-### Importieren Sie die MySQL-Datenbankkonfiguration mithilfe des MySQL-Root-Kontos ###
-    mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p mysql
-
-### Gewähren Sie in MySQL Cacti Zugriff auf die TimeZone-Datenbank ###
-    mysql -u root -p
-    GRANT SELECT ON mysql.time_zone_name TO cactiuser@'%';
-    quit;
-
-############ END Installation von Cacti-Datenbank ############
-
-   SHELL
+config.vm.provision "shell", inline: <<-SHELL
+	
+	apt-get update -y
+		
+		############ Installieren von Cacti-Datenbank ############
+		dpkg-reconfigure tzdata
+		
+		
+		### NTP Date Zeitzone Config ###   
+		apt-get update -y
+		apt-get install ntpdate -y
+		ntpdate pool.ntp.ch
+		timedatectl set-ntp 0
+		apt-get install ntp -y
+		date
+	    
+		
+		### Installation des Datenbankdienstes ###
+		apt-get update -y
+		export DEBIAN_FRONTEND="noninteractive"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password root"
+		apt-get install mysql-server -y
+		apt-get install mysql-client -y
+	
+	
+		### MySQLd Konfiguration ###
+	cat << 'EOT' >> /etc/mysql/mysql.conf.d/mysqld.cnf
+	
+	character-set-client-handshake = FALSE
+	character-set-server = utf8mb4
+	collation-server = utf8mb4_unicode_ci
+	join_buffer_size = 31M
+	innodb_buffer_pool_size = 240M
+	innodb_doublewrite = OFF
+	innodb_flush_log_at_timeout = 3
+	innodb_read_io_threads = 32
+	innodb_write_io_threads = 16
+	innodb_buffer_pool_instances = 3
+	
+	[client]
+	user=root
+	password="root"
+	EOT
+		
+		### Datenbank und Benutzer Erstellung in MySQL und cacti Download ###
+		service mysql restart
+		mysql -u root -Bse "CREATE DATABASE cacti;CREATE USER 'cactiuser'@'%' IDENTIFIED BY 'cacti';GRANT ALL PRIVILEGES ON cacti.* TO 'cactiuser'@'%';"
+		mkdir /downloads
+		cd /downloads
+		wget https://www.cacti.net/downloads/cacti-1.2.3.tar.gz
+		
+		
+		### Cacti-Datenbankvorlage in MySQL importieren ###
+		sed -i 's/user=root/user=cactiuser/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+		sed -i 's/password="root"/password="cacti"/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+		tar -zxvf cacti-1.2.3.tar.gz
+		cd cacti-1.2.3
+		mysql -u cactiuser cacti < cacti.sql
+	
+	
+		### Importieren Sie die MySQL-Datenbankkonfiguration mithilfe des MySQL-Root-Kontos ###
+		sed -i 's/user=cactiuser/user=root/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+		sed -i 's/password="cacti"/password="root"/g' /etc/mysql/mysql.conf.d/mysqld.cnf
+		mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql
+	
+	
+		### Gewähren Sie in MySQL Cacti Zugriff auf die TimeZone-Datenbank ###
+		mysql -u root -Bse "GRANT SELECT ON mysql.time_zone_name TO cactiuser@'%';"
+		
+		
+		### Löscht das root Passwort aus der Datei ###
+		sed -n -e :a -e '1,3!{P;N;D;};N;ba' /etc/mysql/mysql.conf.d/mysqld.cnf
+		
+		
+		############ END Installation von Cacti-Datenbank ############
+	
+SHELL
+	
 end
 
 
 
-
-
-
-
-Cacti Apache Frontent
+# Cacti Apache Frontent Server
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-  config.vm.network "public_network", ip: "192.168.0.232"
-  vb.memory = "1024"
+config.vm.box = "ubuntu/xenial64"
 
-   config.vm.provision "shell", inline: <<-SHELL
-	apt-get update
+config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+config.vm.network "public_network", ip: "192.168.0.232"
+
+config.vm.provider "virtualbox" do |vb|
+	vb.gui = true
+	vb.memory = "1024"
+end
+
+config.vm.provision "shell", inline: <<-SHELL
+	apt-get update -y
 	
 	#Apache Webserver Installation     
-	apt-get install apache2 php libapache2-mod-php php-cli php-snmp
-	apt-get install php-mysql php-mbstring php-gd php-xml
-	apt-get install php-ldap php-gmp php-intl php-recode php-gettext
-	apt-get install php-pear php-pspell php-memcache
+	apt-get install apache2 php libapache2-mod-php php-cli php-snmp -y
+	apt-get install php-mysql php-mbstring php-gd php-xml -y
+	apt-get install php-ldap php-gmp php-intl php-recode php-gettext -y
+	apt-get install php-pear php-pspell php-memcache -y
 	
 	
 	# Lokalisierung der php.ini Datei und in Variable speichern
 	updatedb
-	phpini=$(locate php.ini)
+	
+	
+	# Bearbeitung der php.ini Datei
+	phpini=$(locate php.ini | grep -e "^/etc.*apache2")
+	sed -i 's/max_execution_time\ =\ 30/max_execution_time\ =\ 300/g' $phpini
+	sed -i 's/memory_limit\ =\ 128M/memory_limit\ =\ 500M/g' $phpini
+	sed -i 's/post_max_size\ =\ 8M/post_max_size\ =\ 32M/g' $phpini
+	sed -i 's/max_input_time\ =\ 60/max_input_time\ =\ 300/g' $phpini
+	sed -i 's/;date.timezone\ =/date.timezone\ = Europe\/Zurich/g' $phpini
+	sed -i 's/register_argc_argv\ =\ Off/register_argc_argv\ =\ On/g' $phpini
 	
 	
 	# Bearbeitung der php.ini Datei (mit sed noch anpassen)
-	vi /etc/php/7.2/apache2/php.ini
-	>
-		max_execution_time = 300
-		memory_limit = 500M
-		post_max_size = 32M
-		max_input_time = 300
-		date.timezone = America/Sao_Paulo
-		register_argc_argv = On
-	<
+	phpini=$(locate php.ini | grep -e "^/etc.*cli")
+	sed -i 's/;date.timezone\ =/date.timezone\ = Europe\/Zurich/g' $phpini
 	
-	
-	# Bearbeitung der php.ini Datei (mit sed noch anpassen)
-	vi /etc/php/7.2/cli/php.ini
-	>
-		date.timezone = America/Sao_Paulo
-	<
 	
 	# Apache Dienst neustarten
 	service apache2 restart
-	
-	
+		
 	
 	# Cacti Installation
-	apt-get update
-	apt-get install snmp snmpd rrdtool libmysql++-dev libsnmp-dev help2man
-	apt-get install dos2unix autoconf dh-autoreconf libssl-dev librrds-perl
-	apt-get install snmp-mibs-downloader
+	apt-get update -y
+	apt-get install snmp snmpd rrdtool libmysql++-dev libsnmp-dev help2man -y
+	apt-get install dos2unix autoconf dh-autoreconf libssl-dev librrds-perl -y
+	apt-get install snmp-mibs-downloader -y
 	
-	# reboot der VM?
+
 	
 	# Spine Installation
+	mkdir /downloads
 	cd /downloads
 	wget https://www.cacti.net/downloads/spine/cacti-spine-1.2.3.tar.gz
 	tar -zxvf cacti-spine-1.2.3.tar.gz
@@ -197,42 +164,35 @@ Vagrant.configure("2") do |config|
 	
 	# Bearbeitung Konfigurationsdatei
 	cp /usr/local/spine/etc/spine.conf.dist /usr/local/spine/etc/spine.conf
-	vi /usr/local/spine/etc/spine.conf
-	>
-		DB_Host       localhost
-		DB_Database   cacti
-		DB_User       cactiuser
-		DB_Pass       kamisama123
-		DB_Port       3306
-	<
+	sed -i 's/DB_Host       localhost/DB_Host       192.168.0.231/g' /usr/local/spine/etc/spine.conf
+	sed -i 's/DB_Pass       cactiuser/DB_Pass       kamisama123/g' /usr/local/spine/etc/spine.conf
 	
 	
 	# Verschiebung des Cacti Ordner in Apache
-	mv /downloads/cacti-1.2.3 /var/www/html/cacti
+	cd /
+	mv /downloads/cacti-spine-1.2.3 /var/www/html/cacti
+	mkdir /var/www/html/cacti/log
 	touch /var/www/html/cacti/log/cacti.log
 	touch /var/www/html/cacti/log/cacti_stderr.log
 	chown www-data.www-data /var/www/html/cacti -R
 	
 	
 	# Cacti Konfigurationsdatei bearbeitung
-	vi /var/www/html/cacti/include/config.php
-	>
-		$database_type     = 'mysql';
-		$database_default  = 'cacti';
-		$database_hostname = 'localhost';
-		$database_username = 'cactiuser';
-		$database_password = 'kamisama123';
-		$database_port     = '3306';
-		$database_retries  = 5;
-		$database_ssl      = false;
-		$database_ssl_key  = '';
-		$database_ssl_cert = '';
-		$database_ssl_ca   = '';
-	<
-test	
-   SHELL
+	mkdir /var/www/html/cacti/include
+	confphp="/var/www/html/cacti/include/config.php"
+	touch $confphp
+	cat << 'EOT' > $confphp
+	echo $database_default  = 'cacti';
+	echo $database_hostname = '192.168.0.231';
+	echo $database_username = 'cactiuser';
+	echo $database_password = 'kamisama123';
+	echo $database_port     = '3306';
+	echo $database_retries  = 5;
+	echo $database_ssl      = false;
+	echo $database_ssl_key  = '';
+	echo $database_ssl_cert = '';
+	echo $database_ssl_ca   = '';
+	EOT
+	
+SHELL
 end
-
-
-Cacti Installation
-
