@@ -28,7 +28,7 @@ Auf "Element anlegen" gehen
 ![](/images/jenkins_05.png)
 
 Name in das Feld eingeben und "Free Style-Softwareprojekt bauen" auswählen und ok klicken
-![](/images/jenkins_06.png)
+![](/images/jenkins_11.png)
 
 Nach unten scrollen bis Buildverfahren. "Build-Schritt hinzufügen" klicken und "Shell ausführen" auswählen.
 Anschliessend den change directory cmd eingeben wo das Vagrantfile befindet und auf der nächste zeile vagrant up eingeben.
