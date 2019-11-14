@@ -9,7 +9,7 @@ Zip Datei entpacken und .msi Installation ausführen. Einfach durchklicken und a
 Nach Installation Browser öffnen und http://localhost:8080 eingeben.
 
 Passwort aus der Datei gemäss Pfad auslesen und eingeben
-> ![](/images/jenkins_01.png)
+>> ![](/images/jenkins_01.png)
 
 Install suggested plugins auswählen. Die Installation dauert einige Minuten
 > ![](/images/jenkins_02.png)
