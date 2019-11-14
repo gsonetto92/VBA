@@ -37,7 +37,6 @@ Anschliessend den change directory cmd eingeben wo das Vagrantfile befindet und 
 Dann auf Speichern klicken
 
 Nun auf "Jetzt bauen" klicken
-
 ![](/images/jenkins_08.png)
 
 Dann bei Build-Verlauf auf #1 klicken und anschliessend auf Konsoleausgabe gehen und prüfen ob exit Code 0 ist.
