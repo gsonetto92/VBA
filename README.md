@@ -7,17 +7,15 @@ Diese Arbeit wurde erstellt von:
 ## Inhaltsverzeichnis
 - [Einleitung](##Einleitung)
 - [Installation 1. VM](#installation-1-vm)
-- [Konfiguration von DB Server](##Konfiguration von DB Server)
-- [Installation 2. VM mit Apacher Server](##Installation 2. VM mit Apacher Server)
-- [Testheader](#Testheader)
+- [Konfiguration von DB Server](#konfiguration-von-db-server)
+- [Installation 2. VM mit Apacher Server](#installation-2-vm-mit-apache-server)
 ---
 ## Einleitung
-Mit unserer Arbeit wollen wir aufzeigen, wie die Automatisierung mittels Vagrant und Docker funktioniert. In dieser Arbeit, wird eine Ubuntu Linux Maschine automatisiert erstellt und auf diese VM wird eine Cacti Datenbank installiert und vollständig konfiguriert.
+Mit unserer Arbeit wollen wir aufzeigen, wie die Automatisierung mittels Vagrant und Docker funktioniert. In dieser Arbeit, werden zwei VM's erstellt. Die erste VM dient für die Installation von der Cacti Datenbank. Die zweite VM installiert und konfiguriert den Apache Webserver.
 
 ---
 ## Installation 1. VM
-### **Linux Ubuntu Installation**
-> [&uarr; *Zum Inhaltsverzeichnis*](##Inhaltsverzeichnis)
+> [&uarr; *Zum Inhaltsverzeichnis*](#inhaltsverzeichnis)
 
 ```
 # -*- mode: ruby -*-
@@ -43,7 +41,7 @@ end
 ```
 ---
 ## Konfiguration von DB Server
-> [&uarr; *Zum Inhaltsverzeichnis*](##Inhaltsverzeichnis)
+> [&uarr; *Zum Inhaltsverzeichnis*](#inhaltsverzeichnis)
 ```
 # Aktualisiert alle neuen Repositories
 apt-get update -y
@@ -130,9 +128,8 @@ end
 ```
 ---
 ## Installation 2. VM mit Apacher Server
-# Testheader
 Hier geben Wir die Konfiguration für den Apache Webserver mit.
-> [&uarr; *Zum Inhaltsverzeichnis*](##Inhaltsverzeichnis)
+> [&uarr; *Zum Inhaltsverzeichnis*](#inhaltsverzeichnis)
 ```
 
 config.vm.define "web" do |web|
