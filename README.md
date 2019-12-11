@@ -1,4 +1,4 @@
-# Arbeit für das Fach V-BA
+# Arbeit für das Fach VBA (11.12.2019)
 Diese Arbeit wurde erstellt von:
 - Giuseppe Sonetto
 - Javier Lopez
