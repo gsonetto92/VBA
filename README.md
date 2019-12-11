@@ -6,7 +6,7 @@ Diese Arbeit wurde erstellt von:
 
 ## Inhaltsverzeichnis
 - [Einleitung](##Einleitung)
-- [Installation 1. VM](##Installation 1. VM)
+- [Installation 1. VM](#installation-1-vm)
 - [Konfiguration von DB Server](##Konfiguration von DB Server)
 - [Installation 2. VM mit Apacher Server](##Installation 2. VM mit Apacher Server)
 - [Testheader](#Testheader)
