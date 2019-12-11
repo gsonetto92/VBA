@@ -6,11 +6,9 @@ Diese Arbeit wurde erstellt von:
 
 ## Inhaltsverzeichnis
 - [Einleitung](##Einleitung)
-- [Vagrantfile](##Vagrantfile)
-- [Dockerdateien](##Dockerdateien)
-- [YML Datei](##YML-Datei)
-- [Installation Apache & MySQL](##Installation-Apache-&-MySQL)
-- [PHP Ausgabe](##PHP-Ausgabe)
+- [Installation 1. VM](##Installation 1. VM)
+- [Konfiguration von DB Server](##Konfiguration von DB Server)
+- [Installation 2. VM mit Apacher Server](##Installation 2. VM mit Apacher Server)
 ---
 ## Einleitung
 Mit unserer Arbeit wollen wir aufzeigen, wie die Automatisierung mittels Vagrant und Docker funktioniert. In dieser Arbeit, wird eine Ubuntu Linux Maschine automatisiert erstellt und auf diese VM wird eine Cacti Datenbank installiert und vollständig konfiguriert.
@@ -264,38 +262,6 @@ SHELL
 end
 
 end
-
-
-
-
-
 ```
 ---
-## Installation Apache & MySQL
-> [&uarr; *Zum Inhaltsverzeichnis*](##Inhaltsverzeichnis)
-```
-# Definiert den PHP Container mit Apache und installiert alle benötigten PHP-Module
-FROM php:5.6-apache
-RUN a2enmod rewrite
-RUN apt-get update && apt-get install -y libpng-dev libjpeg-dev libpq-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
-    && docker-php-ext-install gd mbstring pdo pdo_mysql pdo_pgsql
-# Definiert das Workdirectory des Webservers
-WORKDIR /var/www/html
-```
----
-## PHP Ausgabe
-> [&uarr; *Zum Inhaltsverzeichnis*](##Inhaltsverzeichnis)
 
-Anzeige der Webseite, ob die Verbindung erfolgreich war oder fehlgeschlagen ist.
-```
-<?php
-echo "<html><h1>DB Verbindung</h1>";
-try {
-    $db = new PDO('mysql:host=db;dbname=database;charset=utf8mb4', 'admin', 'test');
-    echo "Datenbank Verbindung war erfolgreich!";
-} catch(PDOException $e) {
-    echo "Datenbank Verbindung fehlgeschlagen!: " . $e->getMessage();
-}
-```
