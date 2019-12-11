@@ -6,9 +6,9 @@ Diese Arbeit wurde erstellt von:
 
 ## Inhaltsverzeichnis
 - [Einleitung](#einleitung)
-- [Installation 1. VM](#installation-1-vm)
+- [Installation 1. VM (Cacti DB-Server](#installation-1-vm-cacti-db-server)
 - [Konfiguration von DB Server](#konfiguration-von-db-server)
-- [Installation 2. VM mit Apacher Server](#installation-2-vm-mit-apache-server)
+- [Installation 2. VM (Apache Webserver](#installation-2-vm-apache-webserver)
 ---
 ## Einleitung
 Mit unserer Arbeit wollen wir aufzeigen, wie die Automatisierung mittels Vagrant und Docker funktioniert. In dieser Arbeit, werden zwei VM's erstellt. Die erste VM dient für die Installation von der Cacti Datenbank. Die zweite VM installiert und konfiguriert den Apache Webserver.
